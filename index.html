@@ -1,79 +1,147 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827">
-<meta name="description" content="Учебная презентация: потоковые алгоритмы, скетчи и обработка потоков данных.">
-<title>Потоковые алгоритмы — презентация</title>
-<style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--card:#1a2940;--text:#edf3fc;--muted:#a9b8cc;--accent:#7db4ff}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
-body{min-height:100svh;display:flex;flex-direction:column}
-header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px clamp(16px,4vw,48px);border-bottom:1px solid #26344a;background:#0e1727}
-.brand{font-weight:700;letter-spacing:.2px}.sub{font-size:13px;color:var(--muted);margin-top:3px}
-main{width:min(1100px,100%);margin:auto;padding:clamp(12px,3vw,32px);flex:1;display:flex;flex-direction:column;justify-content:center}
-.slide{display:none;min-height:min(66vh,680px);padding:clamp(22px,5vw,64px);border:1px solid #293a54;border-radius:20px;background:linear-gradient(145deg,#17263c,#111c2e);box-shadow:0 24px 70px #0005;position:relative}
-.slide.active{display:flex;flex-direction:column}
-h1{font-size:clamp(27px,4.2vw,48px);line-height:1.12;letter-spacing:-.7px;margin:0 0 clamp(20px,4vh,38px);max-width:900px}
-.items{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px;align-content:start}
-.item{font-size:clamp(16px,1.7vw,20px);line-height:1.5;padding:15px 18px;border-radius:12px;background:#21334d;color:#edf3fc;border:1px solid #314967}
-.item:nth-child(3n+2){background:#1b2c40}.item:nth-child(3n){background:#29283e;border-color:#49415f}
-.foot{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;margin-top:auto;padding-top:26px}
-.toolbar{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px 22px}
-button{border:1px solid #3b506d;background:#1a2a40;color:var(--text);border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
-button:hover{background:#263d5b}button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-button:disabled{opacity:.4;cursor:not-allowed}#count{color:var(--muted);font-variant-numeric:tabular-nums;min-width:70px;text-align:center}
-.progress{height:4px;background:#1b2b41}#bar{height:100%;width:0;background:var(--accent);transition:width .18s}
-.links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:0 16px 18px;font-size:14px}
-a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
-@media(max-width:620px){header{align-items:flex-start;flex-direction:column}.slide{min-height:70svh;padding:22px 18px;border-radius:14px}.items{grid-template-columns:1fr;gap:9px}.item{font-size:16px;padding:12px 14px}.toolbar{gap:7px}.toolbar button{padding:9px 12px}}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
-</style>
+    <meta charset="UTF-8">
+    <title>Потоковые алгоритмы</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        .slide-container {
+            position: relative;
+            width: 90vw;
+            height: 90vh;
+            max-width: 1400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .slide {
+            display: none;
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: white;
+        }
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        .counter { font-size: 16px; font-weight: bold; }
+    </style>
 </head>
 <body>
-<header><div><div class="brand">Потоковые алгоритмы</div><div class="sub">Учебная презентация · 31 слайд</div></div><div class="sub">← → или клавиши Page Up / Page Down для навигации</div></header>
-<main id="stage" aria-live="polite"></main>
-<nav class="toolbar" aria-label="Управление презентацией">
-<button id="prev" type="button">← Назад</button><span id="count" aria-label="Номер слайда">1 / 31</span><button id="next" type="button">Вперёд →</button><button id="full" type="button">На весь экран</button>
-</nav>
-<div class="progress" aria-hidden="true"><div id="bar"></div></div>
-<div class="links"><a href="./Сопроводительный_текст.md">Сопроводительный текст к выступлению</a><a href="https://github.com/budd-son/StreamingAlgorithms-">Репозиторий проекта</a></div>
+
+<div class="slide-container">
+    <img src="pages/slide_1.jpg" class="slide active" id="slide0">
+    <img src="pages/slide_2.jpg" class="slide" id="slide1">
+    <img src="pages/slide_3.jpg" class="slide" id="slide2">
+    <img src="pages/slide_4.jpg" class="slide" id="slide3">
+    <img src="pages/slide_5.jpg" class="slide" id="slide4">
+    <img src="pages/slide_6.jpg" class="slide" id="slide5">
+    <img src="pages/slide_7.jpg" class="slide" id="slide6">
+    <img src="pages/slide_8.jpg" class="slide" id="slide7">
+    <img src="pages/slide_9.jpg" class="slide" id="slide8">
+    <img src="pages/slide_10.jpg" class="slide" id="slide9">
+    <img src="pages/slide_11.jpg" class="slide" id="slide10">
+    <img src="pages/slide_12.jpg" class="slide" id="slide11">
+    <img src="pages/slide_13.jpg" class="slide" id="slide12">
+    <img src="pages/slide_14.jpg" class="slide" id="slide13">
+    <img src="pages/slide_15.jpg" class="slide" id="slide14">
+    <img src="pages/slide_16.jpg" class="slide" id="slide15">
+    <img src="pages/slide_17.jpg" class="slide" id="slide16">
+    <img src="pages/slide_18.jpg" class="slide" id="slide17">
+    <img src="pages/slide_19.jpg" class="slide" id="slide18">
+    <img src="pages/slide_20.jpg" class="slide" id="slide19">
+    <img src="pages/slide_21.jpg" class="slide" id="slide20">
+    <img src="pages/slide_22.jpg" class="slide" id="slide21">
+    <img src="pages/slide_23.jpg" class="slide" id="slide22">
+    <img src="pages/slide_24.jpg" class="slide" id="slide23">
+    <img src="pages/slide_25.jpg" class="slide" id="slide24">
+    <img src="pages/slide_26.jpg" class="slide" id="slide25">
+    <img src="pages/slide_27.jpg" class="slide" id="slide26">
+    <img src="pages/slide_28.jpg" class="slide" id="slide27">
+    <img src="pages/slide_29.jpg" class="slide" id="slide28">
+    <img src="pages/slide_30.jpg" class="slide" id="slide29">
+    <img src="pages/slide_31.jpg" class="slide" id="slide30">
+
+</div>
+
+<div class="controls">
+    <button id="prevBtn" onclick="changeSlide(-1)">← Назад</button>
+    <span class="counter" id="counter">1 / 31</span>
+    <button id="nextBtn" onclick="changeSlide(1)">Вперед →</button>
+</div>
+
 <script>
-const slides=[["Потоковые алгоритмы","Теория алгоритмов, 3 курс","Heavy hitters, Count-Min Sketch, HyperLogLog, медиана потока","Нехайчик Софья"],["«В потоке данных вы не можете позволить себе роскошь оглянуться назад: либо вы поняли суть на лету, либо она потеряна навсегда».","— Брайан Керниган"],["Поточный алгоритм","Обработка последовательности данных в один или малое число проходов.","Строго один проход: каждый элемент читается один раз.","Сублинейная память: O(1), O(polylog N) или O(1/ε).","Ответ может быть приближённым: ошибка ε с вероятностью не меньше 1 − δ."],["Модели потоковых данных","Cash Register — только добавления (+1). Пример: счётчик запросов.","Turnstile — добавления и удаления (+1 или −1).","Strict Turnstile — обновления могут быть отрицательными, но частота остаётся неотрицательной.","Sliding Window — учитываем только последние события или заданный интервал времени.","Count-Min в базовом виде рассчитан на добавления; обычный HyperLogLog не поддерживает удаления."],["История: от идеи к формализации","Нога Алон · Йосси Матиас · Марио Сегеди","1980-е: первые работы · 1996: формализация понятия · 2005: премия Гёделя и полупоточные алгоритмы"],["Какой подход выбрать","Точный ответ: детерминированные алгоритмы, дополнительные проходы или больше памяти.","Приближённый ответ: вероятностные скетчи с контролируемой ошибкой.","Выбор зависит от ε, δ, допустимой памяти и семантики обновлений."],["Задача: самый частый элемент","Числа приходят по одному. Какое встречается чаще всех?","Пример потока: 3, 7, 3, 1, 3, 5, 3, 7, 3, 9, 3, 1, 3, 7, 3, 3."],["Решение в лоб: счётчик для каждого числа","Для каждого уникального значения храним отдельный счётчик.","Время — O(N), память — O(D), где D — число различных значений.","Если почти все элементы уникальны, словарь может быть почти размером с поток."],["Идея потокового решения: помнить только двоих","Для поиска большинства можно хранить кандидата и баланс.","Разные элементы взаимно компенсируются; элемент с частотой больше N/2 переживёт компенсации.","Память не зависит от длины потока."],["Бойер–Мур: пары разных отбрасываем","Лидер встречается больше N/2 раз.","Пары различных элементов можно мысленно вычёркивать: большинство не исчезнет полностью.","После прохода получаем кандидата, но его нужно проверить точным подсчётом."],["Бойер–Мур: правила","Храним кандидата и счётчик.","Если счётчик равен нулю — текущий элемент становится кандидатом.","Если элемент совпадает с кандидатом — счётчик +1; иначе — счётчик −1.","Время O(N), дополнительная память O(1)."],["Бойер–Мур: пример","Счётчик растёт при совпадении с кандидатом и уменьшается при другом значении.","Когда баланс обнуляется, следующий элемент может стать новым кандидатом.","Для строгого ответа проверяем, что кандидат встречается больше N/2 раз."],["Мисра–Грис: частые элементы больше N/k","Храним не более k − 1 счётчиков.","Если элемент уже есть — увеличиваем его счётчик.","Если есть свободная ячейка — добавляем элемент.","Если ячеек нет — уменьшаем все счётчики на 1 и удаляем нулевые."],["Мисра–Грис: пример, k = 3","Храним два счётчика; порог — N/3.","При нехватке ячеек уменьшаем оба счётчика.","Счётчики после компенсаций могут быть меньше истинных частот.","Все элементы с частотой строго больше N/k останутся среди кандидатов."],["Мисра–Грис: зачем второй проход","Первый проход оставляет не более k − 1 кандидатов.","Тяжёлый элемент не будет пропущен, но могут остаться лишние кандидаты.","Второй проход точно считает частоты кандидатов и проверяет порог."],["Count-Min: куда попадает элемент","Матрица счётчиков и несколько хеш-функций.","Каждая хеш-функция выбирает ячейку в своей строке; при добавлении увеличиваем её на 1.","Коллизии добавляют посторонний вклад и могут завышать частоту."],["Count-Min Sketch: частота любого элемента","Для запроса ключа повторно вычисляем позиции во всех строках.","Оценка — минимум из выбранных счётчиков.","Минимум уменьшает влияние коллизий; в модели добавлений оценка не занижает частоту."],["Count-Min: гарантия","f(x) ≤ оценка ≤ f(x) + ε · N с вероятностью не меньше 1 − δ.","Ширина w = ⌈e / ε⌉; число рядов d = ⌈ln(1 / δ)⌉.","Гарантия относится к стандартной модели неотрицательных добавлений."],["HyperLogLog: сколько разных элементов","Хешируем элемент и смотрим на длину начальной серии нулей.","Длинные серии редки; максимумы по регистрам позволяют оценить число уникальных элементов.","Относительная стандартная ошибка порядка 1,04 / √m, где m — число регистров.","Стандартный HyperLogLog не поддерживает прямое удаление элементов."],["Reservoir Sampling: случайная выборка из потока","Нужно сохранить K случайных элементов из потока неизвестной длины.","Первые K элементов помещаем в резервуар.","Для i-го элемента выбираем j равномерно из [1, i]. Если j ≤ K — заменяем элемент j.","После N элементов каждый имеет вероятность K/N попасть в выборку. Память O(K)."],["Bloom Filter: встречался ли элемент?","Компактная вероятностная проверка принадлежности множеству.","Добавление: устанавливаем k битов, выбранных хеш-функциями.","Проверка: хотя бы один ноль — точно НЕТ; все единицы — возможно, ДА.","Возможны ложноположительные ответы; структура не хранит ключи и не считает частоты.","Для удаления используют специальные варианты, например Counting Bloom Filter."],["Top-K: минимальная куча","Поддерживаем min-кучу размера K.","Корень — минимальный элемент среди текущих K лидеров.","Новый элемент сильнее корня — вытесняем корень; иначе игнорируем.","Память O(K), обновление кучи O(log K)."],["Top-K: обработка ключа","Если ключ уже в куче — обновляем его частоту и восстанавливаем кучу.","Если места достаточно — добавляем ключ.","Иначе сравниваем с корнем и заменяем его, если новый кандидат сильнее.","Для частотного Top-K нужна отдельная стратегия оценки ключей вне кучи."],["Top-K в продакшене: два эшелона","Первый эшелон: Space-Saving или Count-Min фиксированного размера.","Второй эшелон: куча Top-K для ограниченного набора кандидатов.","Так миллионы редких ключей не раздувают память.","Гарантии разных скетчей различаются — их нельзя смешивать без анализа."],["Медиана потока: две кучи","Max-куча хранит нижнюю половину, min-куча — верхнюю.","Размеры куч отличаются не более чем на один элемент.","Медиана доступна по вершинам; вставка O(log N).","Это точный алгоритм, но память O(N). P² и t-digest — приближённые методы для квантилей."],["Скользящие окна: анализ недавних событий","Окно по количеству событий — последние N элементов.","Временное окно — например, последние 5 минут.","Старые события можно удалять из очереди или учитывать с меньшим весом.","Экспоненциальное затухание: вес exp(−λ(t−tᵢ)).","Примеры: ошибки за 5 минут, запросы за минуту, rate limiting."],["Брокеры сообщений: откуда берётся поток","Источники: сервисы, датчики, логи → брокер → потребители со скетчами → метрики и алерты.","Kafka хранит события в журнале; потребитель читает с нужного смещения и может перечитать поток.","Учитываем порядок, повторы доставки, партиционирование и обратное давление."],["Потоковые алгоритмы и машинное обучение","Онлайновое обучение: обновление модели по мере поступления данных; пример — стохастический градиентный спуск.","Хеширование признаков отображает признаки в вектор фиксированной длины.","Reservoir Sampling помогает получать выборку; окна и затухание — учитывать дрейф распределения.","MinHash и SimHash применяются для поиска почти-дубликатов."],["Потоковые алгоритмы и безопасность","Misra–Gries и Count-Min помогают искать источники большого объёма трафика.","HyperLogLog оценивает число уникальных адресов или портов.","Bloom Filter используется для предварительной проверки URL и блок-листов.","Rate limiting может опираться на компактные оценки частот.","Защита от подбора коллизий: качественные хеши и секретные случайные seed."],["Где применяется и итоги","Частые элементы: Boyer–Moore, Misra–Gries. Частоты: Count-Min.","Уникальные элементы: HyperLogLog. Проверка членства: Bloom Filter.","Случайная выборка: Reservoir Sampling. Top-K: min-куча.","Медиана и квантили: две кучи, P², t-digest. Недавняя история: скользящие окна.","Главный выбор — точность, память, поддержка удалений и временной горизонт."],["Вопросы","Почему Count-Min только завышает оценку, а Misra–Gries только занижает счётчики?","Почему нельзя усреднять p99 с разных серверов?","Что сломается в HyperLogLog, если нужны удаления?","Зачем Misra–Gries второй проход?"]];
-const stage=document.getElementById('stage');
-slides.forEach((parts,i)=>{
- const s=document.createElement('section');s.className='slide';s.setAttribute('aria-label','Слайд '+(i+1));
- const h=document.createElement('h1');h.textContent=parts[0];s.append(h);
- const items=document.createElement('div');items.className='items';
- parts.slice(1).forEach(t=>{const d=document.createElement('div');d.className='item';d.textContent=t;items.append(d)});
- s.append(items);
- const f=document.createElement('div');f.className='foot';
- const left=document.createElement('span');left.textContent='Потоковые алгоритмы';
- const right=document.createElement('span');right.textContent=(i+1)+' / '+slides.length;
- f.append(left,right);s.append(f);stage.append(s);
-});
-const all=[...document.querySelectorAll('.slide')];let current=0;
-const prev=document.getElementById('prev'),next=document.getElementById('next'),count=document.getElementById('count'),bar=document.getElementById('bar');
-function show(index){
- current=Math.max(0,Math.min(all.length-1,index));
- all.forEach((slide,i)=>{slide.classList.toggle('active',i===current);slide.setAttribute('aria-hidden',String(i!==current))});
- count.textContent=(current+1)+' / '+all.length;bar.style.width=((current+1)/all.length*100)+'%';
- prev.disabled=current===0;next.disabled=current===all.length-1;
-}
-prev.addEventListener('click',()=>show(current-1));next.addEventListener('click',()=>show(current+1));
-document.getElementById('full').addEventListener('click',async()=>{
- try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}
- catch(e){count.textContent='Полный экран недоступен';setTimeout(()=>show(current),1800)}
-});
-document.addEventListener('keydown',e=>{
- if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(current+1)}
- else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(current-1)}
- else if(e.key==='Home')show(0);else if(e.key==='End')show(all.length-1);
-});
-let touchStart=null;
-stage.addEventListener('touchstart',e=>{touchStart=e.changedTouches[0].clientX},{passive:true});
-stage.addEventListener('touchend',e=>{if(touchStart===null)return;const dx=e.changedTouches[0].clientX-touchStart;if(Math.abs(dx)>55)show(current+(dx<0?1:-1));touchStart=null},{passive:true});
-show(0);
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active');
+            if (i === index) slide.classList.add('active');
+        });
+        counter.textContent = `${index + 1} / ${slides.length}`;
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === slides.length - 1;
+    }
+
+    function changeSlide(direction) {
+        currentSlide += direction;
+        if (currentSlide < 0) currentSlide = 0;
+        if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+        showSlide(currentSlide);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'Space') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    showSlide(0);
 </script>
-</body></html>
+</body>
+</html>
